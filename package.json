@@ -1,9 +1,9 @@
-{
   "name": "social-media-downloader",
   "version": "1.0.0",
   "main": "index.cjs",
   "scripts": {
-    "start": "node index.cjs"
+    "start": "node index.cjs",
+    "build": "npm install"
   },
   "dependencies": {
     "api-dylux": "^1.8.5",
