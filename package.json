@@ -1,4 +1,5 @@
-  "name": "social-media-downloader",
+ {
+   "name": "social-media-downloader",
   "version": "1.0.0",
   "main": "index.cjs",
   "scripts": {
