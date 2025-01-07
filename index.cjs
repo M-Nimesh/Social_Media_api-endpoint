@@ -69,7 +69,7 @@ app.get("/api/server-info", (req, res) => {
 });
 
 // Facebook videos download endpoint
-socialMediaRoutes.get("/download/facebook", async (req, res) => {
+socialMediaRoutes.get("/facebook", async (req, res) => {
     try {
         const url = req.query.url;
         if (!url) {
@@ -95,7 +95,7 @@ socialMediaRoutes.get("/download/facebook", async (req, res) => {
 });
 
 // Instagram content download endpoint
-socialMediaRoutes.get("/download/instagram", async (req, res) => {
+socialMediaRoutes.get("/instagram", async (req, res) => {
     try {
         const url = req.query.url;
         if (!url) {
@@ -120,7 +120,7 @@ socialMediaRoutes.get("/download/instagram", async (req, res) => {
     }
 });
 // TikTok video download endpoint
-socialMediaRoutes.get("/download/tiktok", async (req, res) => {
+socialMediaRoutes.get("/tiktok", async (req, res) => {
     try {
         const url = req.query.url;
         if (!url) {
@@ -144,7 +144,7 @@ socialMediaRoutes.get("/download/tiktok", async (req, res) => {
 });
 
 // X (Twitter) content download endpoint
-socialMediaRoutes.get("/download/twitter", async (req, res) => {
+socialMediaRoutes.get("/twitter", async (req, res) => {
     try {
         const url = req.query.url;
         if (!url) {
