@@ -103,13 +103,8 @@ socialMediaRoutes.get("/instagram", async (req, res) => {
                 .status(400)
                 .json(createErrorResponse("URL parameter is required"));
         }
-        if (!validateURL(url, "instagram")) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Invalid Instagram Username"));
-        }
-
-        // Execute the instagram download
+        
+       // Execute the instagram download
         const result = await fg.igstory(url);
         res.status(200).json({
             Owner: currentOwner,
