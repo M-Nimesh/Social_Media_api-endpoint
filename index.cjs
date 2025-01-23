@@ -162,6 +162,26 @@ socialMediaRoutes.get("/twitter", async (req, res) => {
     }
 });
 
+socialMediaRoutes.get("/yt-mp4", async (req, res) => {
+    try {
+        const url = req.query.url;
+        if (!url) {
+            return res
+                .status(400)
+                .json(createErrorResponse("Query parameter is required"));
+        }
+        // Execute the ytmp4 download
+
+        const result = await alldl(url);
+        res.status(200).json({
+            Owner: currentOwner,
+            data: result,
+        });
+    } catch (error) {
+        res.status(500).json(createErrorResponse(error.message));
+    }
+});
+
 // URL Validator endpoint
 socialMediaRoutes.get("/validate-url", async (req, res) => {
     try {
