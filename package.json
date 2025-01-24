@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.cjs",
   "scripts": {
-    "start": "nmp start",
+    "start": "npm start",
     "build": "npm install"
   },
   "dependencies": {
