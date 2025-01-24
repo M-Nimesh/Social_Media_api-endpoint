@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const fg = require('api-dylux');
-
-
+const fg = require("api-dylux");
+const { alldl } = require("rahad-all-downloader");
+const ytdl = require("node-yt-dl");
 
 dotenv.config();
 
@@ -35,7 +35,6 @@ const createErrorResponse = (message) => {
     };
 };
 
-
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -54,12 +53,11 @@ const socialMediaRoutes = express.Router();
 // Server Info Endpoint
 app.get("/api/server-info", (req, res) => {
     try {
+        const url = query;
         const serverInfo = {
             success: true,
             data: {
                 currentOwner: currentOwner,
-
-
             },
         };
         res.status(200).json(serverInfo);
@@ -97,14 +95,13 @@ socialMediaRoutes.get("/facebook", async (req, res) => {
 // Instagram content download endpoint
 socialMediaRoutes.get("/instagram", async (req, res) => {
     try {
-        const url = req.query.url;
-        if (!url) {
+        const username = req.query.username;
+        if (!username) {
             return res
                 .status(400)
-                .json(createErrorResponse("URL parameter is required"));
+                .json(createErrorResponse("Username parameter is required"));
         }
-        
-       // Execute the instagram download
+        // Execute the instagram download
         const result = await fg.igstory(url);
         res.status(200).json({
             Owner: currentOwner,
@@ -162,6 +159,29 @@ socialMediaRoutes.get("/twitter", async (req, res) => {
     }
 });
 
+//npm info
+
+socialMediaRoutes.get("/npmsearch", async (req, res) => {
+    try {
+        const url = req.query.url;
+        if (!url) {
+            return res
+                .status(400)
+                .json(createErrorResponse("Query parameter is required"));
+        }
+        // Execute the instagram download
+        const result = await fg.npmSearch(url);
+        res.status(200).json({
+            Owner: currentOwner,
+            data: result,
+        });
+    } catch (error) {
+        res.status(500).json(createErrorResponse(error.message));
+    }
+});
+
+//yt dl-video
+
 socialMediaRoutes.get("/yt-mp4", async (req, res) => {
     try {
         const url = req.query.url;
@@ -171,7 +191,28 @@ socialMediaRoutes.get("/yt-mp4", async (req, res) => {
                 .json(createErrorResponse("Query parameter is required"));
         }
         // Execute the ytmp4 download
-       const result = await alldl(url);
+
+        const result = await alldl(url);
+        res.status(200).json({
+            Owner: currentOwner,
+            data: result,
+        });
+    } catch (error) {
+        res.status(500).json(createErrorResponse(error.message));
+    }
+});
+
+//yt dl-audio
+
+socialMediaRoutes.get("/yt-mp3", async (req, res) => {
+    try {
+        const url = req.query.url;
+        if (!url) {
+            return res
+                .status(400)
+                .json(createErrorResponse("Query parameter is required"));
+        }
+        const result = await ytdl.mp3(url);
         res.status(200).json({
             Owner: currentOwner,
             data: result,
