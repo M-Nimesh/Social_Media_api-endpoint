@@ -4,273 +4,199 @@ const dotenv = require("dotenv");
 const fg = require("api-dylux");
 const { alldl } = require("rahad-all-downloader");
 const ytdl = require("node-yt-dl");
+const pornhub = require("@justalk/pornhub-api");
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const serverStartTime = Date.now(); // Server start time
+let currentOwner = "Miyuru Nimesh✨";
 
-// Global variables for server info
-let currentOwner = "Miyuru Nimesh✨"; // Current user provided
-
-// URL Validation Patterns
+// URL validation patterns
 const urlPatterns = {
     facebook: /^https?:\/\/(www\.)?(facebook|fb)\.com\/.+/i,
     instagram: /^https?:\/\/(www\.)?instagram\.com\/(p|reel|stories)\/.+/i,
     tiktok: /^https?:\/\/(www\.)?(tiktok\.com)\/.+/i,
     twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.+/i,
+    pornhub: /^https?:\/\/(www\.)?pornhub\.com\/view_video\.php\?viewkey=[\w\d]+/i,
 };
 
-// URL Validation Function
+// URL validator
 const validateURL = (url, platform) => {
     if (!url) return false;
-    return urlPatterns[platform].test(url);
+    return urlPatterns[platform]?.test(url);
 };
 
-// Create error response
-const createErrorResponse = (message) => {
-    return {
-        success: false,
-        message: message,
-        owner: currentOwner,
-    };
-};
+// Standard error response format
+const createErrorResponse = (message) => ({
+    success: false,
+    message,
+    owner: currentOwner,
+});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Custom middleware for logging
 app.use((req, res, next) => {
-    console.log(
-        `[${serverStartTime}] ${req.method} ${req.url} - Requested by: ${currentOwner}`,
-    );
+    console.log(`[${serverStartTime}] ${req.method} ${req.url} - Requested by: ${currentOwner}`);
     next();
 });
 
-// Routes සදහා මූලික structure එක
+// Sub-router for all API endpoints
 const socialMediaRoutes = express.Router();
 
 // Server Info Endpoint
 app.get("/api/server-info", (req, res) => {
     try {
-        const url = query;
-        const serverInfo = {
+        res.status(200).json({
             success: true,
             data: {
-                currentOwner: currentOwner,
+                currentOwner,
             },
-        };
-        res.status(200).json(serverInfo);
+        });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-// Facebook videos download endpoint
+// Facebook download
 socialMediaRoutes.get("/facebook", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("URL parameter is required"));
+    if (!validateURL(url, "facebook")) return res.status(400).json(createErrorResponse("Invalid Facebook URL"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("URL parameter is required"));
-        }
-        if (!validateURL(url, "facebook")) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Invalid Facebook URL"));
-        }
-
-        // Execute the facebook download
         const result = await fg.fbdl(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-// Instagram content download endpoint
+// Instagram stories
 socialMediaRoutes.get("/instagram", async (req, res) => {
+    const username = req.query.username;
+    if (!username) return res.status(400).json(createErrorResponse("Username parameter is required"));
     try {
-        const username = req.query.username;
-        if (!username) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Username parameter is required"));
-        }
-        // Execute the instagram download
-        const result = await fg.igstory(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        const result = await fg.igstory(username);
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
-// TikTok video download endpoint
+
+// TikTok
 socialMediaRoutes.get("/tiktok", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("URL parameter is required"));
+    if (!validateURL(url, "tiktok")) return res.status(400).json(createErrorResponse("Invalid TikTok URL"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("URL parameter is required"));
-        }
-        if (!validateURL(url, "tiktok")) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Invalid TikTok URL"));
-        }
         const result = await fg.tiktok(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-// X (Twitter) content download endpoint
+// Twitter/X
 socialMediaRoutes.get("/twitter", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("URL parameter is required"));
+    if (!validateURL(url, "twitter")) return res.status(400).json(createErrorResponse("Invalid Twitter/X URL"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("URL parameter is required"));
-        }
-        if (!validateURL(url, "twitter")) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Invalid Twitter/X URL"));
-        }
         const result = await fg.twitter(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-//npm info
-
+// NPM search
 socialMediaRoutes.get("/npmsearch", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("Query parameter is required"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Query parameter is required"));
-        }
-        // Execute the instagram download
         const result = await fg.npmSearch(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-//yt dl-video
-
+// YouTube MP4
 socialMediaRoutes.get("/yt-mp4", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("Query parameter is required"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Query parameter is required"));
-        }
-        // Execute the ytmp4 download
-
         const result = await alldl(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-//yt dl-audio
-
+// YouTube MP3
 socialMediaRoutes.get("/yt-mp3", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("Query parameter is required"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("Query parameter is required"));
-        }
         const result = await ytdl.mp3(url);
-        res.status(200).json({
-            Owner: currentOwner,
-            data: result,
-        });
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-// URL Validator endpoint
-socialMediaRoutes.get("/validate-url", async (req, res) => {
+// Pornhub video info
+socialMediaRoutes.get("/pornhub", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("URL parameter is required"));
+    if (!validateURL(url, "pornhub")) return res.status(400).json(createErrorResponse("Invalid Pornhub URL"));
     try {
-        const url = req.query.url;
-        if (!url) {
-            return res
-                .status(400)
-                .json(createErrorResponse("URL parameter is required"));
-        }
-
-        // Check which platform the URL belongs to
-        let platform = null;
-        for (const [key, pattern] of Object.entries(urlPatterns)) {
-            if (pattern.test(url)) {
-                platform = key;
-                break;
-            }
-        }
-
-        if (platform) {
-            res.status(200).json({
-                success: true,
-                message: "Valid URL detected",
-                platform: platform,
-                url: url,
-                Owner: currentOwner,
-            });
-        } else {
-            res.status(400).json(
-                createErrorResponse("Invalid or unsupported URL"),
-            );
-        }
+        const result = await pornhub.page(url, ['title', 'pornstars', 'download_urls']);
+        res.status(200).json({ Owner: currentOwner, data: result });
     } catch (error) {
         res.status(500).json(createErrorResponse(error.message));
     }
 });
 
-// Main routes
+// URL Validator
+socialMediaRoutes.get("/validate-url", async (req, res) => {
+    const url = req.query.url;
+    if (!url) return res.status(400).json(createErrorResponse("URL parameter is required"));
+
+    let platform = null;
+    for (const [key, pattern] of Object.entries(urlPatterns)) {
+        if (pattern.test(url)) {
+            platform = key;
+            break;
+        }
+    }
+
+    if (platform) {
+        res.status(200).json({
+            success: true,
+            message: "Valid URL detected",
+            platform,
+            url,
+            Owner: currentOwner,
+        });
+    } else {
+        res.status(400).json(createErrorResponse("Invalid or unsupported URL"));
+    }
+});
+
+// Use all routes under /api
 app.use("/api", socialMediaRoutes);
 
-// Error handling middleware
+// Fallback error handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json(createErrorResponse("Something went wrong!"));
 });
 
-// Server configuration
-const PORT = process.env.PORT || 3000;
-const serverStartTime = Date.now(); // Get the current time when the server starts
+// Start server
 app.listen(PORT, () => {
     console.log(`Server started by: ${currentOwner}`);
     console.log(`Start time: ${serverStartTime}`);
