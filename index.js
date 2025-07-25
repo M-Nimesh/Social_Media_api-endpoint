@@ -2,9 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const fg = require("api-dylux");
-const { alldl } = require("rahad-all-downloader");
-const ytdl = require("node-yt-dl");
-const pornhub = require("@justalk/pornhub-api");
+
 
 dotenv.config();
 
@@ -19,7 +17,6 @@ const urlPatterns = {
     instagram: /^https?:\/\/(www\.)?instagram\.com\/(p|reel|stories)\/.+/i,
     tiktok: /^https?:\/\/(www\.)?(tiktok\.com)\/.+/i,
     twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.+/i,
-    pornhub: /^https?:\/\/(www\.)?pornhub\.com\/view_video\.php\?viewkey=[\w\d]+/i,
 };
 
 // URL validator
@@ -74,17 +71,6 @@ socialMediaRoutes.get("/facebook", async (req, res) => {
     }
 });
 
-// Instagram stories
-socialMediaRoutes.get("/instagram", async (req, res) => {
-    const username = req.query.username;
-    if (!username) return res.status(400).json(createErrorResponse("Username parameter is required"));
-    try {
-        const result = await fg.igstory(username);
-        res.status(200).json({ Owner: currentOwner, data: result });
-    } catch (error) {
-        res.status(500).json(createErrorResponse(error.message));
-    }
-});
 
 // TikTok
 socialMediaRoutes.get("/tiktok", async (req, res) => {
@@ -124,42 +110,6 @@ socialMediaRoutes.get("/npmsearch", async (req, res) => {
     }
 });
 
-// YouTube MP4
-socialMediaRoutes.get("/yt-mp4", async (req, res) => {
-    const url = req.query.url;
-    if (!url) return res.status(400).json(createErrorResponse("Query parameter is required"));
-    try {
-        const result = await alldl(url);
-        res.status(200).json({ Owner: currentOwner, data: result });
-    } catch (error) {
-        res.status(500).json(createErrorResponse(error.message));
-    }
-});
-
-// YouTube MP3
-socialMediaRoutes.get("/yt-mp3", async (req, res) => {
-    const url = req.query.url;
-    if (!url) return res.status(400).json(createErrorResponse("Query parameter is required"));
-    try {
-        const result = await ytdl.mp3(url);
-        res.status(200).json({ Owner: currentOwner, data: result });
-    } catch (error) {
-        res.status(500).json(createErrorResponse(error.message));
-    }
-});
-
-// Pornhub video info
-socialMediaRoutes.get("/pornhub", async (req, res) => {
-    const url = req.query.url;
-    if (!url) return res.status(400).json(createErrorResponse("URL parameter is required"));
-    if (!validateURL(url, "pornhub")) return res.status(400).json(createErrorResponse("Invalid Pornhub URL"));
-    try {
-        const result = await pornhub.page(url, ['title', 'pornstars', 'download_urls']);
-        res.status(200).json({ Owner: currentOwner, data: result });
-    } catch (error) {
-        res.status(500).json(createErrorResponse(error.message));
-    }
-});
 
 // URL Validator
 socialMediaRoutes.get("/validate-url", async (req, res) => {
