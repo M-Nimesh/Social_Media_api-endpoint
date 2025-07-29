@@ -11,19 +11,6 @@ const PORT = process.env.PORT || 3000;
 const serverStartTime = Date.now(); // Server start time
 let currentOwner = "Miyuru Nimesh✨";
 
-// URL validation patterns
-const urlPatterns = {
-    facebook: /^https?:\/\/(www\.)?(facebook|fb)\.com\/.+/i,
-    instagram: /^https?:\/\/(www\.)?instagram\.com\/(p|reel|stories)\/.+/i,
-    tiktok: /^https?:\/\/(www\.)?(tiktok\.com)\/.+/i,
-    twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.+/i,
-};
-
-// URL validator
-const validateURL = (url, platform) => {
-    if (!url) return false;
-    return urlPatterns[platform]?.test(url);
-};
 
 // Standard error response format
 const createErrorResponse = (message) => ({
